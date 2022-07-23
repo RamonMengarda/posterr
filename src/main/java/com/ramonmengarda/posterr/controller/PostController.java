@@ -65,4 +65,11 @@ public class PostController {
 
         return Lists.newArrayList(postRepository.findAllByCreatedAtBetween(startDate, endDate));
     }
+
+    @GetMapping("/count/{id}")
+    public int getCountByUser(@PathVariable long id){
+
+        //CONSTRAINT: Count of number of posts one user has made
+        return postRepository.countByUserId_Id(id);
+    }
 }
