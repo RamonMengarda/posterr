@@ -31,4 +31,12 @@ public class PostController {
 
         return postRepository.findAll(pageable);
     }
+
+    @GetMapping("/user/{id}/page/{pageNumber}")
+    public Page<Post> getPostsByUser(@PathVariable long id, @PathVariable int pageNumber){
+        //CONSTRAINT: Load posts made by user on chunks of 5 posts
+        Pageable pageable = PageRequest.of(pageNumber, 5);
+
+        return postRepository.findAllByUserId_IdOrderByCreatedAtDesc(id, pageable);
+    }
 }
