@@ -19,6 +19,10 @@ import javax.validation.constraints.Size;
 
 import org.springframework.data.annotation.CreatedDate;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +32,19 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @Table(name = "post")
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type"
+)
+@JsonSubTypes(
+    {
+        @Type(value = Original.class, name = "original"),
+        @Type(value = Repost.class, name = "repost"),
+        @Type(value = Quote.class, name = "quote")
+    }
+)
+
 public abstract class Post {
     
     @Id

@@ -14,6 +14,7 @@ import com.ramonmengarda.posterr.model.Post;
 public interface PostRepository extends PagingAndSortingRepository<Post, Long>{
    
     Page<Post> findAllByUserId_IdOrderByCreatedAtDesc(long id, Pageable pageable);
+    List<Post> findAllByUserId_IdOrderByCreatedAtDesc(long id);
 
     List<Post> findAllByCreatedAtBetween(Date start, Date end);
 

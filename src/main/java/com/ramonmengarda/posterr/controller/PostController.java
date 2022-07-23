@@ -1,7 +1,10 @@
 package com.ramonmengarda.posterr.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -9,9 +12,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -71,5 +77,29 @@ public class PostController {
 
         //CONSTRAINT: Count of number of posts one user has made
         return postRepository.countByUserId_Id(id);
+    }
+
+    @PostMapping
+    public ResponseEntity createPost(@RequestBody Post post) throws URISyntaxException{
+
+        //CONSTRAINT: A user is not allowed to post more than 5 posts in one day
+
+        //Check if user has 5 or more posts
+        if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(post.getUser().getId()).size() >= 5){
+            
+            //Get the 24 hour interval
+            Calendar c = Calendar.getInstance(); 
+			c.setTime(new Date()); 
+			c.add(Calendar.HOUR, -24);
+			Date twentyFourHoursAgo = c.getTime();
+            
+            //Check if the fifth post has been published less than 24 hours ago
+            if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(post.getUser().getId()).get(4).getCreatedAt().after(twentyFourHoursAgo)){
+                return ResponseEntity.internalServerError().body("Unable to create post - Reached the limit of 5 posts in a 24 hour interval.");
+            }
+        }
+
+        Post savedPost = postRepository.save(post);
+        return ResponseEntity.created(new URI("/posts/" + savedPost.getId())).body(savedPost);
     }
 }
