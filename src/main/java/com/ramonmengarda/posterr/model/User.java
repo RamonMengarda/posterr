@@ -11,6 +11,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -51,5 +52,6 @@ public class User {
     private Date createdAt;
 
     @OneToMany(mappedBy = "user")
+    @Transient
     private Set<Post> posts;
 }
