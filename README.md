@@ -8,6 +8,7 @@ Created by Ramon Mengarda.
 ## Running Locally
 
 To run this application locally, you'll need:
+* Java 8
 * Maven 4.0.0
 * Spring Boot 2.7.1
 
