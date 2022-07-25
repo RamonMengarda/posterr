@@ -34,10 +34,10 @@ public class PosterrApplication {
 			c.add(Calendar.HOUR, -1);
 			Date nowMinus3Hours = c.getTime();
 			
-			userRepository.save(User.userBuilder().username("user1").createdAt(dateNow).build());
-			userRepository.save(User.userBuilder().username("user2").createdAt(nowMinus1Hours).build());
-			userRepository.save(User.userBuilder().username("user3").createdAt(nowMinus2Hours).build());
-			userRepository.save(User.userBuilder().username("user4").createdAt(nowMinus3Hours).build());
+			userRepository.save(User.userBuilder().username("username1").createdAt(dateNow).build());
+			userRepository.save(User.userBuilder().username("username2").createdAt(nowMinus1Hours).build());
+			userRepository.save(User.userBuilder().username("username3").createdAt(nowMinus2Hours).build());
+			userRepository.save(User.userBuilder().username("username4").createdAt(nowMinus3Hours).build());
 		}
 	}
 
