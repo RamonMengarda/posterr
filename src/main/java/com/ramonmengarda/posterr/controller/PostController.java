@@ -59,14 +59,19 @@ public class PostController {
         //Default values are set to startDate=190-01-01 00:00:00 and endDate=now, to make both ends optional. The frontend just has to send a non-empty url parameter in order to use the default values.
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
 
-        Date startDate = new Date(0);
-        Date endDate = new Date();
+        Date startDate;
+        Date endDate;
 
         try{
             startDate = formatter.parse(start);
+        } catch (ParseException e) {
+            startDate = new Date(0);
+        }
+
+        try{
             endDate = formatter.parse(end);
         } catch (ParseException e) {
-            e.printStackTrace();
+            endDate = new Date();
         }
 
         return Lists.newArrayList(postRepository.findAllByCreatedAtBetween(startDate, endDate));
