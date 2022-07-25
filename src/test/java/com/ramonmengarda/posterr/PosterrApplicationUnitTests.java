@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.util.StreamUtils;
 
@@ -93,7 +94,7 @@ class PosterrApplicationUnitTests {
 
 		Repost repostQuoteTemplate = Repost.repostOriginalBuilder().createdAt(nowMinus2Hours).author(user).quote(quoteOriginalTemplate).build();
 
-		Quote quoteRepostTemplate = Quote.quoteOriginalBuilder().createdAt(nowMinus1Hours).author(user).content("Quote Original content").repost(repostOriginalTemplate).build();
+		Quote quoteRepostTemplate = Quote.quoteOriginalBuilder().createdAt(nowMinus1Hours).author(user).content("Quote Repost content").repost(repostOriginalTemplate).build();
 
 		try {
 			final String longContent = StreamUtils.copyToString(new ClassPathResource("loremIpsum778chars.txt").getInputStream(), Charset.defaultCharset());
@@ -132,27 +133,28 @@ class PosterrApplicationUnitTests {
 		});
 
 		//Validate constraint: A user is not allowed to post more than 5 posts in one day (including reposts and quote posts)
-		//Using canCreatePost method, wich has the same logic as the PostController createPost method that receives the requisition's body as a parameter
+		//Using canCreatePost method, wich has the same logic as the PostController's createPost method that receives the requisition's body as a parameter
 		assertFalse(canCreatePost(user, dateNow));
 	}
-
+	
 	private boolean canCreatePost(User user, Date date){
-		//Check if user has 5 or more posts
-		if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(user.getId()).size() >= 5){
 		
-			//Get the 24 hour interval
-			Calendar c = Calendar.getInstance(); 
+		//Check if user has 5 or more posts
+        if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(user.getId(), PageRequest.of(4,1)).hasContent()){
+            
+            //Get the 24 hour interval
+            Calendar c = Calendar.getInstance(); 
 			c.setTime(date); 
 			c.add(Calendar.HOUR, -24);
 			Date twentyFourHoursAgo = c.getTime();
-			
-			//Check if the fifth post has been published less than 24 hours ago
-			if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(user.getId()).get(4).getCreatedAt().after(twentyFourHoursAgo)){
-				return false;
-			}
-		}
+            
+            //Check if the fifth post has been published less than 24 hours ago
+            if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(user.getId(), PageRequest.of(4, 1)).getContent().get(0).getCreatedAt().after(twentyFourHoursAgo)){
+                return false;
+            }
+        }
 
-		return true;
+        return true;
 	}
 }
 	
