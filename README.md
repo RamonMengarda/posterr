@@ -5,18 +5,14 @@ Created by Ramon Mengarda.
 
 <hr>
 
-## Running the container
-
-To run this project you need to have Docker installed
-
-* In a terminal, run `docker run -dp 9090:8080 ramonmengarda/posterr`
-* Docker will download the image and make the application available, running it on port 9090. If you want to use another port, you can change the `9090` on the last command to the most suited port.
-
 ## Running Locally
 
 To run this application locally, you'll need:
 * Maven 4.0.0
 * Spring Boot 2.7.1
+
+OR
+
 * Docker (if you want to build the image and run it locally)
 
 ### Running with Spring Boot
