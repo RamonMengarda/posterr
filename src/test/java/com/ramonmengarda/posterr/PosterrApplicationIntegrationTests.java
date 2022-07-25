@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,6 +34,8 @@ import com.ramonmengarda.posterr.model.Repost;
 import com.ramonmengarda.posterr.model.User;
 import com.ramonmengarda.posterr.repository.PostRepository;
 import com.ramonmengarda.posterr.repository.UserRepository;
+
+import net.minidev.json.JSONObject;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PosterrApplication.class)
@@ -300,9 +303,80 @@ public class PosterrApplicationIntegrationTests {
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$", hasSize(4)));
-
-        
     }
 
+    @Test
+    public void getCountByUser() throws Exception{
 
+        User user1 = User.userBuilder().username("user1").createdAt(new Date()).build();
+        
+        userRepository.save(user1);
+        
+        Date dateNow = new Date();
+                
+        Original u1OriginalTemplate = Original.originalBuilder().createdAt(dateNow).author(user1).content("Original content").build();
+		Repost u1RepostOriginalTemplate = Repost.repostOriginalBuilder().createdAt(dateNow).author(user1).original(u1OriginalTemplate).build();
+		Quote u1QuoteOriginalTemplate = Quote.quoteOriginalBuilder().createdAt(dateNow).author(user1).content("Quote Original content").original(u1OriginalTemplate).build();
+		Repost u1RepostQuoteTemplate = Repost.repostOriginalBuilder().createdAt(dateNow).author(user1).quote(u1QuoteOriginalTemplate).build();
+		Quote u1QuoteRepostTemplate = Quote.quoteOriginalBuilder().createdAt(dateNow).author(user1).content("Quote Repost content").repost(u1RepostOriginalTemplate).build();
+        Original u1OriginalTemplate2 = Original.originalBuilder().createdAt(dateNow).author(user1).content("Original content 2").build();
+        Original u1OriginalTemplate3 = Original.originalBuilder().createdAt(dateNow).author(user1).content("Original content 3").build();
+
+        postRepository.save(u1OriginalTemplate);
+        postRepository.save(u1RepostOriginalTemplate);
+        postRepository.save(u1QuoteOriginalTemplate);
+        postRepository.save(u1RepostQuoteTemplate);
+        postRepository.save(u1QuoteRepostTemplate);
+        postRepository.save(u1OriginalTemplate2);
+        postRepository.save(u1OriginalTemplate3);
+        
+        mvc.perform(get("/posts/count/{id}", String.valueOf(user1.getId())).contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$", is(7)));
+    }
+
+    @Test
+    public void createPost() throws Exception{
+
+        Date dateNow = new Date();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        User user1 = User.userBuilder().username("user").createdAt(dateNow).build();
+        userRepository.save(user1);
+
+        Original originalTemplate = Original.originalBuilder().createdAt(dateNow).author(user1).content("Original content").build();
+        
+        JSONObject user = new JSONObject();
+        user.put("id", user1.getId());
+        user.put("username", user1.getUsername());
+        user.put("createdAt", formatter.format(user1.getCreatedAt()) + "+00:00");
+        user.put("posts", null);
+
+        JSONObject original = new JSONObject();
+        original.put("type", "original");
+        original.put("id", originalTemplate.getId());
+        original.put("createdAt", formatter.format(originalTemplate.getCreatedAt()) + "+00:00");
+        original.put("user", user);
+        original.put("content", originalTemplate.getContent());
+        original.put("parent", null);
+        original.put("children", null);
+        
+        mvc.perform(get("/posts/count/{id}", String.valueOf(user1.getId())).contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$", is(0)));
+
+        mvc.perform(post("/posts").contentType(MediaType.APPLICATION_JSON).content(original.toJSONString()));
+        
+        mvc.perform(get("/posts/count/{id}", String.valueOf(user1.getId())).contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$", is(1)));
+    }
 }
