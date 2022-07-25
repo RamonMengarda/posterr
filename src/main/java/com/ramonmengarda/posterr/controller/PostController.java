@@ -85,7 +85,7 @@ public class PostController {
         //CONSTRAINT: A user is not allowed to post more than 5 posts in one day
 
         //Check if user has 5 or more posts
-        if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(post.getUser().getId()).size() >= 5){
+        if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(post.getUser().getId(), PageRequest.of(4,1)).hasContent()){
             
             //Get the 24 hour interval
             Calendar c = Calendar.getInstance(); 
@@ -94,7 +94,7 @@ public class PostController {
 			Date twentyFourHoursAgo = c.getTime();
             
             //Check if the fifth post has been published less than 24 hours ago
-            if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(post.getUser().getId()).get(4).getCreatedAt().after(twentyFourHoursAgo)){
+            if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(post.getUser().getId(), PageRequest.of(4, 1)).getContent().get(0).getCreatedAt().after(twentyFourHoursAgo)){
                 return ResponseEntity.internalServerError().body("Unable to create post - Reached the limit of 5 posts in a 24 hour interval.");
             }
         }
