@@ -1,28 +1,28 @@
 package com.ramonmengarda.posterr.controller;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ramonmengarda.posterr.model.User;
-import com.ramonmengarda.posterr.repository.UserRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import com.ramonmengarda.posterr.service.UserService;
 
 @RestController
 @RequestMapping("/user")
 @CrossOrigin
 public class UserController {
     
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository){
-        this.userRepository = userRepository;
+    public UserController(UserService userService){
+        this.userService = userService;
     }
 
     @GetMapping("/{id}")
     public User getUser(@PathVariable Long id) {
-        return userRepository.findById(id).orElseThrow(RuntimeException::new);
+        return userService.getUser(id);
     }
     
 }

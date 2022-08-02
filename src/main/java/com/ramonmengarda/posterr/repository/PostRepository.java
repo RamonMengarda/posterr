@@ -1,7 +1,6 @@
 package com.ramonmengarda.posterr.repository;
 
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +14,7 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Long>{
    
     Page<Post> findAllByUserId_IdOrderByCreatedAtDesc(long id, Pageable pageable);
 
-    List<Post> findAllByCreatedAtBetween(Date start, Date end);
+    Page<Post> findAllByCreatedAtBetween(Date start, Date end, Pageable Pageable);
 
     int countByUserId_Id(long id);
 }
