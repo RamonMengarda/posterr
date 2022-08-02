@@ -85,8 +85,14 @@ public class PostService {
 			c.add(Calendar.HOUR, -24);
 			Date twentyFourHoursAgo = c.getTime();
             
+            //Return fifth page os user posts with only one result per page
+            Page<Post> fifthPage = postRepository.findAllByUserId_IdOrderByCreatedAtDesc(post.getUser().getId(), PageRequest.of(4, 1));
+
+            //Get the Post object from the page
+            Post fifthPost = fifthPage.getContent().get(0);
+
             //Check if the fifth post has been published less than 24 hours ago
-            if(postRepository.findAllByUserId_IdOrderByCreatedAtDesc(post.getUser().getId(), PageRequest.of(4, 1)).getContent().get(0).getCreatedAt().after(twentyFourHoursAgo)){
+            if(fifthPost.getCreatedAt().after(twentyFourHoursAgo)){
                 return ResponseEntity.internalServerError().body("Unable to create post - Reached the limit of 5 posts in a 24 hour interval.");
             }
         }
