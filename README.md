@@ -5,6 +5,11 @@ Created by Ramon Mengarda.
 
 <hr>
 
+This application is a twitter lookalike, enabling posts with text and responses on posts.
+
+
+<hr>
+
 ## Running Locally
 
 To run this application locally, you'll need:
